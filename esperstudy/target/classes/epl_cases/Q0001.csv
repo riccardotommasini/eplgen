@@ -1,3 +1,4 @@
+EventType,Timestamp,camera,therm,temp,humid,x,y,sensor
 AlertSmoke,1,R2,R1,50.0,40.0,3,1,AlertSmoke
 BaseThermRead,1,R3,R3,21.0,35.0,4,3,BaseThermRead
 DetectMov,1,R1,R1,23.0,20.0,2,2,DetectMov

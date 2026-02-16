@@ -10,6 +10,7 @@ import com.espertech.esper.runtime.client.EPStatement;
 import com.espertech.esper.runtime.client.UpdateListener;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,8 +25,8 @@ public class FileLogListener implements UpdateListener {
 
     private static final ConcurrentHashMap<String, Object> FILE_LOCKS = new ConcurrentHashMap<>();
 
-    public FileLogListener(String outDir) {
-        this.outpath = Path.of(outDir);
+    public FileLogListener(File outDir) {
+        this.outpath = outDir.toPath();
         try {
             Files.createDirectories(outpath);
         } catch (IOException e) {
