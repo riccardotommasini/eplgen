@@ -1,0 +1,57 @@
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Schema_DetectMov")
+@EventRepresentation(map) create schema DetectMov (camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long);
+
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Schema_BaseThermRead")
+@EventRepresentation(map) create schema BaseThermRead (camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long);
+
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Schema_AlertSmoke")
+@EventRepresentation(map) create schema AlertSmoke (camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long);
+
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Schema_ErrorEvt")
+@EventRepresentation(map) create schema ErrorEvt (camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long);
+
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Schema_BaseEvent")
+@EventRepresentation(map) create schema BaseEvent (camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long);
+
+@Tag(name="EPL", value="DML")
+@Tag(name="CASE", value="Q0001")
+@name("Q0001_Original")
+SELECT count(*) as a1
+FROM DetectMov#time(60 seconds)
+WHERE x <= 0;
+
+@Tag(name="EPL", value="DDL")
+@Tag(name="CASE", value="Q0001")
+@name("Q0001_Decomp_01")
+CREATE WINDOW x_win_1.win:time(60 seconds) as BaseEvent;
+
+@Tag(name="EPL", value="DML")
+@Tag(name="CASE", value="Q0001")
+@name("Q0001_Decomp_02")
+INSERT INTO x_win_1
+SELECT *
+FROM DetectMov;
+
+@Tag(name="EPL", value="DML")
+@Tag(name="CASE", value="Q0001")
+@name("Q0001_Decomp_03")
+INSERT INTO x_filter_2
+SELECT *
+FROM x_win_1
+WHERE x <= 0;
+
+@Tag(name="EPL", value="DML")
+@Tag(name="CASE", value="Q0001")
+@name("Q0001_Decomp_Final")
+SELECT count(*) as a1
+FROM x_filter_2;

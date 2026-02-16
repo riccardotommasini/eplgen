@@ -1,0 +1,6 @@
+@Tag(name="EPL", value="DDL")
+@EventRepresentation(map) create schema StreamA (x string, y int);
+
+@Tag(name="EPL", value="DML")
+@name('s0')
+select * from StreamA#expr(myUDF(view_reference, current_count))#length_batch(10);
