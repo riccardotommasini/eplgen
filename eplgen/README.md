@@ -51,6 +51,45 @@ python -m eplws1.main export-epl --in workload.jsonl --out-dir epl_cases --creat
 ```
 
 ## Parameterizing event types
+
+In the Python package:
+
+1. **Schema names (event types)**
+
+* `eplws1/config.py`
+
+  * `DEFAULT_SCHEMA_STREAMS = ("DetectMov", "BaseThermRead", "AlertSmoke", "ErrorEvt")`
+
+You can override at runtime:
+
+* workload generation: `--streams ...`
+* export (schemas + CSV generation): `--schema-streams ...`
+
+2. **Schema fields and types used in exported EPL (create schema ...)**
+
+* `eplws1/export_epl.py`
+
+  * `_emit_basic_schemas(...)` contains the schema string:
+
+    * `schema_fields = "camera string, therm string, temp double, humid double, x int, y int, sensor string, ts long"`
+
+Edit that string to match your real schemas, or extend it to emit different field sets per stream.
+
+3. **CSV column schema**
+
+* `eplws1/export_data.py`
+
+  * `DEFAULT_COLUMNS = ["EventType","Timestamp","camera","therm","temp","humid","x","y","sensor"]`
+
+4. **Synthetic data generator field population**
+
+* `eplws1/synth_events.py`
+
+  * `generate_stream(...)` creates the actual per-field values (and `ts`).
+
+If you want per-stream schemas (different fields per event type), the change is local: replace `_emit_basic_schemas` to look up a `dict {streamName: "field type, ..."}` and replace `DEFAULT_COLUMNS` with the union (or per-stream CSV files).
+
+
 ```bash
 python -m eplws1.main gen --n 50 --seed 1 --out workload.jsonl --streams DetectMov,BaseThermRead,AlertSmoke
 python -m eplws1.main export-epl --in workload.jsonl --out-dir epl_cases --schema-streams DetectMov,BaseThermRead,AlertSmoke --n-per-stream 500 --seed 1
@@ -59,3 +98,4 @@ python -m eplws1.main export-epl --in workload.jsonl --out-dir epl_cases --schem
 Notes:
 - The last decomposed statement is named `Qxxxx_Decomp_Final`.
 - CSV header is `EventType,Timestamp,[schema fields...]`.
+
