@@ -26,6 +26,9 @@ class ExportConfig:
     n_per_stream: int = 200
     seed: int = 0
 
+    # NEW: optional decomposition
+    emit_decomposition: bool = True
+
 
 def _ensure_semicolon(stmt: str) -> str:
     s = stmt.strip()
@@ -89,16 +92,19 @@ def export_queries_to_case_files(
         if cfg.emit_schemas:
             blocks.extend(_emit_basic_schemas(cfg, case))
 
+        # Original query always present
         blocks.append(_statement_block(cfg, "DML", case, f"{case}_Original", q.strip().rstrip(";")))
 
-        parsed = parse_select_query(q)
-        prog, _ = decompose_select_query(parsed, create_window_mode=cfg.create_window_mode)
+        # NEW: only include decomposition if requested
+        if cfg.emit_decomposition:
+            parsed = parse_select_query(q)
+            prog, _ = decompose_select_query(parsed, create_window_mode=cfg.create_window_mode)
 
-        total = len(prog.statements)
-        for j, stmt in enumerate(prog.statements, start=1):
-            kind = _stmt_kind(stmt)
-            name = f"{case}_Decomp_Final" if j == total else f"{case}_Decomp_{j:02d}"
-            blocks.append(_statement_block(cfg, kind, case, name, stmt.strip().rstrip(";")))
+            total = len(prog.statements)
+            for j, stmt in enumerate(prog.statements, start=1):
+                kind = _stmt_kind(stmt)
+                name = f"{case}_Decomp_Final" if j == total else f"{case}_Decomp_{j:02d}"
+                blocks.append(_statement_block(cfg, kind, case, name, stmt.strip().rstrip(";")))
 
         epl_path.write_text("\n".join(blocks).rstrip() + "\n", encoding="utf-8")
 

@@ -51,6 +51,7 @@ def cmd_export_epl(args: argparse.Namespace) -> None:
         emit_csv=args.emit_csv,
         n_per_stream=args.n_per_stream,
         seed=args.seed,
+        emit_decomposition=args.decompose,   # NEW
     )
     export_jsonl_to_case_files(args.inp, args.out_dir, cfg=cfg, limit=args.limit)
 
@@ -66,11 +67,13 @@ def main(argv=None) -> None:
     g.add_argument("--streams", type=str, default=None, help="Comma-separated stream/event type names")
     g.set_defaults(func=cmd_gen)
 
+
     d = sub.add_parser("decompose", help="Decompose EPL queries into atomic queries (Algorithms 1-3).")
     d.add_argument("--in", dest="inp", type=str, required=True)
     d.add_argument("--out", type=str, required=True)
     d.add_argument("--create-window-mode", choices=["paper","esper"], default="paper")
     d.set_defaults(func=cmd_decompose)
+    
 
     e = sub.add_parser("export-epl", help="Export one .epl per query (original + decomposed network). Optionally generate a matching <case>.csv input dataset.")
     e.add_argument("--in", dest="inp", type=str, required=True)
@@ -86,6 +89,7 @@ def main(argv=None) -> None:
     e.add_argument("--n-per-stream", type=int, default=200)
     e.add_argument("--seed", type=int, default=0)
     e.add_argument("--limit", type=int, default=None)
+    e.add_argument("--no-decompose", action="store_false", dest="decompose", default=True)
     e.set_defaults(func=cmd_export_epl)
 
     args = p.parse_args(argv)

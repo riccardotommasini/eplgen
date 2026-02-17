@@ -6,23 +6,8 @@ import random
 from .ast import SelectQuery, StreamSource, PatternSource, WindowSpec
 from .print_epl import query_to_epl
 from .config import DEFAULT_SCHEMA_STREAMS
-
-_AGGS = ["avg", "max", "min", "count"]
-
-DEFAULT_WEIGHTS = {
-    "where": 28,
-    "r_filter": 46,
-    "windows": 54,
-    "timewin": 37,
-    "join": 12,
-    "pattern": 20,
-    "followed_by": 20,
-    "every": 22,
-    "guards": 8,
-    "aggregates": 30,
-    "group_by": 11,
-    "having": 9,
-}
+from .config import _AGGS
+from .config import DEFAULT_WEIGHTS
 
 def _w(p: float) -> bool:
     return random.random() < p
@@ -48,7 +33,7 @@ def _rand_cond() -> str:
 def _rand_window() -> WindowSpec:
     if _w(0.7):
         n = random.choice([5, 10, 20, 60])
-        unit = random.choice(["seconds", "sec", "s"])
+        unit = random.choice(["seconds", "sec"])
         return WindowSpec(func=f"time({n} {unit})")
     n = random.choice([5, 10, 100, 1000])
     return WindowSpec(func=f"length({n})")
